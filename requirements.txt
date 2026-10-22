@@ -1,0 +1,9 @@
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+PyYAML==5.4.1
+scikit-survival==0.25.0
+pycox==0.3.0
+torch==2.14.1
+SurvivalEVAL==0.9.0

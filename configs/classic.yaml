@@ -1,0 +1,61 @@
+# Search spaces for the classic models (Usama). 20 random tries per model
+# per dataset per seed (Fair Rule 3). Types: "loguniform", "uniform", "int",
+# "categorical".
+
+models:
+  coxph:
+    class: CoxPHSurvivalAnalysis
+    enabled: true
+    n_trials: 20
+    params:
+      alpha:
+        type: loguniform
+        low: 0.0001
+        high: 10.0
+
+  rsf:
+    class: RandomSurvivalForest
+    enabled: true
+    n_trials: 20
+    params:
+      n_estimators:
+        type: int
+        low: 50
+        high: 500
+      max_depth:
+        type: int
+        low: 2
+        high: 20
+      min_samples_split:
+        type: int
+        low: 2
+        high: 20
+      min_samples_leaf:
+        type: int
+        low: 1
+        high: 20
+      max_features:
+        type: categorical
+        choices: ["sqrt", "log2", null]
+
+  gbsa:
+    class: GradientBoostingSurvivalAnalysis
+    enabled: false # "if time" per the plan -- flip to true to include
+    n_trials: 20
+    params:
+      n_estimators:
+        type: int
+        low: 50
+        high: 500
+      learning_rate:
+        type: loguniform
+        low: 0.001
+        high: 0.3
+      max_depth:
+        type: int
+        low: 1
+        high: 5
+      subsample:
+        type: uniform
+        low: 0.5
+        high: 1.0
