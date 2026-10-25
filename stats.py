@@ -85,23 +85,28 @@ def main():
         print("No deep-model results found yet -- waiting on deep/run_deep.py.")
         return
 
-    print("\n=== Wilcoxon: each deep model vs rsf (c_index) ===")
+    print("\n=== Wilcoxon: each deep model vs rsf (15 pairs) ===")
     p_values, labels = [], []
-    for dm in deep_models:
-        result = paired_wilcoxon(df, dm, "rsf", metric="c_index")
-        if result is None:
-            print(f"  {dm} vs RSF: no overlapping (dataset, seed) pairs yet")
-            continue
-        stat, p, n = result
-        print(f"  {dm} vs RSF: W={stat:.3f}, p={p:.4f}, n_pairs={n}")
-        p_values.append(p)
-        labels.append(dm)
+    for metric in ("c_index", "ibs"):
+        for dm in deep_models:
+            result = paired_wilcoxon(df, dm, "rsf", metric=metric)
+            if result is None:
+                print(f"  {dm} vs RSF ({metric}): no overlapping (dataset, seed) pairs yet")
+                continue
+            stat, p, n = result
+            a = df[df["model"] == dm].set_index(["dataset", "seed"])[metric]
+            b = df[df["model"] == "rsf"].set_index(["dataset", "seed"])[metric]
+            diff = (a - b).dropna()
+            print(f"  {dm} vs RSF ({metric}): W={stat:.3f}, p={p:.4f}, "
+                  f"n_pairs={n}, mean diff={diff.mean():+.4f}")
+            p_values.append(p)
+            labels.append(f"{dm} vs RSF ({metric})")
 
     if len(p_values) > 1:
         corrected = bonferroni(p_values)
-        print("\n  Bonferroni-corrected (L8):")
+        print(f"\n  Bonferroni-corrected over {len(p_values)} tests (L8):")
         for label, p_raw, p_corr in zip(labels, p_values, corrected):
-            print(f"    {label} vs RSF: p_raw={p_raw:.4f} -> p_corrected={p_corr:.4f}")
+            print(f"    {label}: p_raw={p_raw:.4f} -> p_corrected={p_corr:.4f}")
 
 
 if __name__ == "__main__":
