@@ -1,0 +1,53 @@
+# Search spaces for the deep models (Taimoor). 20 random tries per model
+# per dataset per seed (Fair Rule 3). Same types as classic.yaml.
+
+models:
+  deepsurv:
+    class: CoxPH
+    enabled: true
+    n_trials: 20
+    params:
+      num_nodes:
+        type: categorical
+        choices: [[32, 32], [64, 64], [128, 128], [256, 256], [64, 64, 64]]
+      dropout:
+        type: uniform
+        low: 0.0
+        high: 0.5
+      lr:
+        type: loguniform
+        low: 0.0001
+        high: 0.01
+      batch_size:
+        type: categorical
+        choices: [64, 128, 256]
+
+  deephit:
+    class: DeepHitSingle
+    enabled: true
+    n_trials: 20
+    params:
+      num_nodes:
+        type: categorical
+        choices: [[32, 32], [64, 64], [128, 128], [256, 256], [64, 64, 64]]
+      dropout:
+        type: uniform
+        low: 0.0
+        high: 0.5
+      lr:
+        type: loguniform
+        low: 0.0001
+        high: 0.01
+      batch_size:
+        type: categorical
+        choices: [64, 128, 256]
+      alpha:
+        type: uniform
+        low: 0.0
+        high: 1.0
+      sigma:
+        type: categorical
+        choices: [0.1, 0.25, 0.5, 1.0]
+      num_durations:
+        type: categorical
+        choices: [10, 50, 100]
