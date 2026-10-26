@@ -106,6 +106,13 @@ def run_model_on_split(
     model_cls = MODEL_CLASSES[model_cfg["class"]]
     n_trials = model_cfg["n_trials"]
     param_spec = model_cfg["params"]
+    # RSF/GBSA have their own internal randomness (bootstrap sampling, feature
+    # subsampling); CoxPH has none and doesn't accept this kwarg.
+    extra = (
+        {"random_state": seed}
+        if model_cfg["class"] in ("RandomSurvivalForest", "GradientBoostingSurvivalAnalysis")
+        else {}
+    )
 
     # Deterministic per (dataset, seed, model) random-search stream.
     # NOTE: do not use Python's built-in hash() here -- it is randomized per
@@ -123,7 +130,7 @@ def run_model_on_split(
     for trial in range(n_trials):
         params = sample_params(param_spec, rng)
         try:
-            model = model_cls(**params)
+            model = model_cls(**params, **extra)
             model.fit(X_train, y_train_struct)
             pred_val = predict_surv_table(model, X_val, val_time_grid)
             metrics = evaluate_predictions(
@@ -144,7 +151,7 @@ def run_model_on_split(
         return None
 
     # Retrain best config on train, evaluate once on test.
-    final_model = model_cls(**best_params)
+    final_model = model_cls(**best_params, **extra)
     final_model.fit(X_train, y_train_struct)
     train_seconds = time.perf_counter() - t0
 
